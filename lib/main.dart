@@ -1,6 +1,7 @@
-import '/transaction.dart';
+import 'package:expenses/components/inputFields.dart';
+import 'package:expenses/components/transactionList.dart';
+import 'package:expenses/klase/transaction.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 void main() => runApp(MyApp());
 
@@ -8,26 +9,61 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter App',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.indigo),
+      title: 'Expenses',
       home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> transactions = [
     Transaction(id: 't1', title: 'Mis', amount: 69, date: DateTime.now()),
     Transaction(id: 't2', title: 'Slusalice', amount: 40, date: DateTime.now())
   ];
 
+  void _addTransaction(String title, double amount) {
+    final novaTransaction = Transaction(
+      id: DateTime.now().toString(),
+      title: title,
+      amount: amount,
+      date: DateTime.now(),
+    );
+
+    setState(() {
+      transactions.add(novaTransaction);
+    });
+  }
+
+  void _showModal(BuildContext ctx) {
+    showModalBottomSheet(
+        context: ctx,
+        builder: (bCtx) {
+          return InputFields(funkcija: _addTransaction);
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Flutter App'),
+      appBar: AppBar(
+        title: Text('Expenses'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showModal(context),
+        child: Icon(
+          Icons.add,
         ),
-        body: Container(
-          margin: EdgeInsets.symmetric(horizontal: 20),
+      ),
+      body: Container(
+        margin: EdgeInsets.symmetric(horizontal: 20),
+        child: SingleChildScrollView(
           child: Column(
             children: [
               Container(
@@ -38,86 +74,11 @@ class MyHomePage extends StatelessWidget {
                   child: Text('Chart'),
                 ),
               ),
-              Card(
-                elevation: 2,
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(10)),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Column(
-                    children: [
-                      TextField(
-                        decoration: InputDecoration(labelText: 'Title'),
-                      ),
-                      TextField(
-                        decoration: InputDecoration(labelText: 'Amount'),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              'Submit',
-                              style: TextStyle(
-                                color: Colors.indigo,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              Column(
-                children: transactions.map((tx) {
-                  return Card(
-                    elevation: 3,
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.fromLTRB(10, 17, 10, 17),
-                          margin: EdgeInsets.all(15),
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.indigo,
-                                width: 2,
-                              ),
-                              color: Colors.indigo.shade200,
-                              borderRadius: BorderRadius.circular(7)),
-                          child: Text(
-                            '${tx.amount} €',
-                            style: TextStyle(
-                                color: Colors.indigo,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              tx.title,
-                              style: TextStyle(
-                                  fontSize: 25, fontWeight: FontWeight.w600),
-                            ),
-                            Text(
-                              DateFormat('d MMMM y').format(tx.date),
-                              style: TextStyle(color: Colors.grey.shade700),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
+              TransactionList(transactions),
             ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
