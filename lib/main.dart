@@ -1,3 +1,4 @@
+import 'package:expenses/components/chart.dart';
 import 'package:expenses/components/inputFields.dart';
 import 'package:expenses/components/transactionList.dart';
 import 'package:expenses/klase/transaction.dart';
@@ -24,9 +25,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> transactions = [
-    Transaction(id: 't1', title: 'Mis', amount: 69, date: DateTime.now()),
-    Transaction(id: 't2', title: 'Slusalice', amount: 40, date: DateTime.now())
+    // Transaction(id: 't1', title: 'Mis', amount: 69, date: DateTime.now()),
+    // Transaction(id: 't2', title: 'Slusalice', amount: 40, date: DateTime.now())
   ];
+
+  List<Transaction> get recentTransactions {
+    return transactions.where((tx) {
+      return tx.date.isAfter(DateTime.now().subtract(
+        Duration(days: 7),
+      ));
+    }).toList();
+  }
 
   void _addTransaction(String title, double amount) {
     final novaTransaction = Transaction(
@@ -66,14 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                width: double.infinity,
-                child: Card(
-                  elevation: 5,
-                  color: Colors.blue,
-                  child: Text('Chart'),
-                ),
-              ),
+              Chart(recentTransactions: recentTransactions),
               TransactionList(transactions),
             ],
           ),
