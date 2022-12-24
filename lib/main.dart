@@ -1,10 +1,18 @@
+import 'dart:isolate';
+
 import 'package:expenses/components/chart.dart';
 import 'package:expenses/components/inputFields.dart';
 import 'package:expenses/components/transactionList.dart';
 import 'package:expenses/klase/transaction.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  // WidgetsFlutterBinding.ensureInitialized();
+  // SystemChrome.setPreferredOrientations(
+  //     [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -64,12 +72,23 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
+  bool showChart = false;
+  final appBar = AppBar(
+    title: Text('Expenses'),
+  );
+
   @override
   Widget build(BuildContext context) {
+    final orijentacija = MediaQuery.of(context).orientation;
+    final txList = Container(
+      height: (MediaQuery.of(context).size.height -
+              appBar.preferredSize.height -
+              MediaQuery.of(context).padding.top) *
+          0.8,
+      child: TransactionList(transactions, _deleteTransaction),
+    );
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Expenses'),
-      ),
+      appBar: appBar,
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showModal(context),
         child: Icon(
@@ -81,8 +100,42 @@ class _MyHomePageState extends State<MyHomePage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Chart(recentTransactions: recentTransactions),
-              TransactionList(transactions, _deleteTransaction),
+              if (orijentacija == Orientation.landscape)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Show chart',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    Switch(
+                        value: showChart,
+                        onChanged: (value) {
+                          setState(() {
+                            showChart = value;
+                          });
+                        }),
+                  ],
+                ),
+              if (orijentacija != Orientation.landscape)
+                Container(
+                  height: (MediaQuery.of(context).size.height -
+                          appBar.preferredSize.height -
+                          MediaQuery.of(context).padding.top) *
+                      0.3,
+                  child: Chart(recentTransactions: recentTransactions),
+                ),
+              if (orijentacija != Orientation.landscape) txList,
+              if (orijentacija == Orientation.landscape)
+                (showChart)
+                    ? Container(
+                        height: (MediaQuery.of(context).size.height -
+                                appBar.preferredSize.height -
+                                MediaQuery.of(context).padding.top) *
+                            0.7,
+                        child: Chart(recentTransactions: recentTransactions),
+                      )
+                    : txList,
             ],
           ),
         ),
