@@ -6,8 +6,9 @@ import 'package:intl/intl.dart';
 
 class TransactionList extends StatelessWidget {
   List<Transaction> transactions = [];
+  final Function deleteList;
 
-  TransactionList(this.transactions);
+  TransactionList(this.transactions, this.deleteList);
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,13 @@ class TransactionList extends StatelessWidget {
                       Row(
                         children: [
                           Container(
-                            padding: EdgeInsets.fromLTRB(10, 17, 10, 17),
+                            constraints: BoxConstraints(
+                              minWidth: 50,
+                              minHeight: 50,
+                              maxWidth: 90,
+                              maxHeight: 90,
+                            ),
+                            // padding: EdgeInsets.all(30),
                             margin: EdgeInsets.all(15),
                             decoration: BoxDecoration(
                                 border: Border.all(
@@ -41,12 +48,14 @@ class TransactionList extends StatelessWidget {
                                 ),
                                 color: Theme.of(context).primaryColorLight,
                                 borderRadius: BorderRadius.circular(7)),
-                            child: Text(
-                              '${transactions[index].amount.toStringAsFixed(2)} €',
-                              style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500),
+                            child: FittedBox(
+                              child: Text(
+                                '${transactions[index].amount.toStringAsFixed(1)} €',
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500),
+                              ),
                             ),
                           ),
                           Column(
@@ -67,7 +76,7 @@ class TransactionList extends StatelessWidget {
                         ],
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () => deleteList(transactions[index].id),
                         icon: Icon(
                           Icons.delete,
                           color: Colors.grey.shade700,

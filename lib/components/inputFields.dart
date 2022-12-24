@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class InputFields extends StatefulWidget {
   final funkcija;
@@ -10,10 +11,14 @@ class InputFields extends StatefulWidget {
 
 class _InputFieldsState extends State<InputFields> {
   final titleController = TextEditingController();
-
   final amountController = TextEditingController();
+  DateTime selectedDate = DateTime.now();
 
   void submit() {
+    if (amountController.text.isEmpty) {
+      return;
+    }
+
     final unesenTitle = titleController.text;
     final unesenAmount = double.parse(amountController.text);
 
@@ -21,9 +26,25 @@ class _InputFieldsState extends State<InputFields> {
       return;
     }
 
-    widget.funkcija(unesenTitle, unesenAmount);
+    widget.funkcija(unesenTitle, unesenAmount, selectedDate);
 
     Navigator.of(context).pop();
+  }
+
+  void datePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2022),
+      lastDate: DateTime.now(),
+    ).then((value) {
+      if (value == null) {
+        return;
+      }
+      setState(() {
+        selectedDate = value;
+      });
+    });
   }
 
   @override
@@ -49,15 +70,32 @@ class _InputFieldsState extends State<InputFields> {
                 keyboardType: TextInputType.number,
                 onSubmitted: (_) => submit(),
               ),
+              Container(
+                height: 60,
+                child: Row(
+                  children: [
+                    Expanded(
+                        child:
+                            Text(DateFormat('d MMMM y').format(selectedDate))),
+                    TextButton(
+                      onPressed: datePicker,
+                      child: Text(
+                        'Choose date',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  ],
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(
+                  ElevatedButton(
                     onPressed: submit,
                     child: Text(
                       'Submit',
                       style: TextStyle(
-                        color: Colors.indigo,
+                        color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
